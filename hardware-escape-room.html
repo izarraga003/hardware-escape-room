@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hardware Escape Room — Iker Zarraga Gaminde</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(145deg,#0a0a1a 0%,#0d1b2a 40%,#1b2838 100%);color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.container{max-width:560px;width:100%}
+.card{background:rgba(255,255,255,0.04);border-radius:20px;padding:32px 28px;border:1px solid rgba(255,255,255,0.08)}
+.badge{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.badge-emoji{font-size:32px}
+.badge-name{font-size:18px;font-weight:700;color:#facc15}
+.badge-sub{font-size:11px;color:#64748b;font-weight:500}
+.question{font-size:16px;font-weight:600;line-height:1.5;margin-bottom:24px;color:#f1f5f9}
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.opt-btn{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px;text-align:left;font-size:14px;font-weight:500;color:#e2e8f0;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.2s}
+.opt-btn:hover:not(.disabled){background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25)}
+.opt-btn.correct{background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e}
+.opt-btn.wrong{background:rgba(239,68,68,0.15);border-color:#ef4444;color:#ef4444}
+.opt-btn.disabled{cursor:default}
+.circle{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:#94a3b8}
+.circle.c-ok{background:#22c55e;color:#fff}
+.circle.c-err{background:#ef4444;color:#fff}
+.hint-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px;animation:fadeIn .3s}
+.hint-box p{font-size:13px;color:#fca5a5;line-height:1.5}
+.hint-box .ht{font-weight:600;margin-bottom:4px}
+.fact-box{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px;animation:fadeIn .3s}
+.fact-box p{font-size:13px;color:#86efac;line-height:1.5}
+.fact-box .ft{font-weight:600;margin-bottom:4px}
+.actions{display:flex;justify-content:flex-end;gap:10px}
+.btn-retry{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-next{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(34,197,94,0.3)}
+.btn-next:hover{transform:scale(1.05)}
+.btn-start{background:linear-gradient(135deg,#facc15,#f59e0b);color:#0a0a1a;border:none;border-radius:12px;padding:14px 48px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(250,204,21,0.3);letter-spacing:.5px}
+.btn-start:hover{transform:scale(1.05)}
+.btn-restart{background:rgba(255,255,255,0.1);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:12px 36px;font-size:14px;font-weight:600;cursor:pointer}
+.progress{display:flex;gap:6px;width:100%;margin-bottom:20px}
+.prog-bar{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.15);transition:all .5s}
+.prog-bar.done{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,0.4)}
+.prog-bar.current{background:#facc15}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:12px;color:#94a3b8;font-weight:500}
+.intro{text-align:center}
+.intro h1{font-size:28px;font-weight:700;color:#facc15;margin:8px 0}
+.intro p{font-size:14px;color:#94a3b8;line-height:1.6;margin-bottom:32px}
+.intro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:32px}
+.intro-item{background:rgba(255,255,255,0.05);border-radius:12px;padding:14px 8px;border:1px solid rgba(255,255,255,0.08)}
+.intro-item .em{font-size:24px;margin-bottom:4px}
+.intro-item .nm{font-size:11px;color:#94a3b8;font-weight:500}
+.end{text-align:center}
+.end h1{font-size:26px;font-weight:700;color:#22c55e;margin:8px 0}
+.end p{font-size:14px;color:#94a3b8;margin-bottom:28px}
+.stats{background:rgba(255,255,255,0.05);border-radius:16px;padding:24px;margin-bottom:28px;border:1px solid rgba(255,255,255,0.08);display:flex;justify-content:center;gap:32px}
+.stat-num{font-size:28px;font-weight:700}
+.stat-label{font-size:12px;color:#94a3b8}
+.tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+.tag{background:rgba(34,197,94,0.15);color:#22c55e;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid rgba(34,197,94,0.3)}
+.footer{text-align:center;font-size:11px;color:#475569;margin-top:20px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.shake{animation:shake .5s ease}
+.pulse{animation:pulse 2s infinite}
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+<script>
+const challenges=[
+{id:1,component:"CPU",emoji:"🧠",question:"Zein da CPUren funtzio nagusia?",options:[{text:"Datuak gordetzea epe luzera",correct:false},{text:"Instrukzioak prozesatu eta kalkuluak egitea",correct:true},{text:"Pantailan irudiak bistaratzea",correct:false}],hint:"CPUa ordenagailuaren 'garuna' da — pentsatu, kalkulatu eta erabakiak hartzen ditu.",fact:"CPU modernoek milioi bat trantsitore baino gehiago dituzte!"},
+{id:2,component:"RAM",emoji:"⚡",question:"Zer gertatzen da ordenagailua itzaltzen denean RAMean gordetako datuekin?",options:[{text:"Disko gogorrean gordetzen dira automatikoki",correct:false},{text:"Ezabatu egiten dira, memoria lurrunkor bat delako",correct:true},{text:"Enkriptatuta geratzen dira hurrengo aldirako",correct:false}],hint:"RAM = memoria LURRUNKOR bat da. Pentsatu arbel batean: itzaltzen duzunean, ezabatu egiten da.",fact:"DDR5 RAM memoriak 6400 MT/s-ko abiadura lor dezake!"},
+{id:3,component:"SSD / HDD",emoji:"💾",question:"Zein da SSD eta HDD arteko desberdintasun nagusia?",options:[{text:"SSDak pieza mekanikoak ditu eta HDD ez",correct:false},{text:"HDD merkeagoa da baina SSD azkarragoa da",correct:true},{text:"SSDak ezin du sistema eragilerik gorde",correct:false}],hint:"HDD = disko mekanikoa (pieza mugikorrak). SSD = memoria solidoa (pieza mugikorrik gabe, azkarragoa).",fact:"SSD batek 500MB/s baino gehiago irakur dezake, HDD batek ~100MB/s bitartean!"},
+{id:4,component:"Plaka Ama",emoji:"🔌",question:"Zein da plaka amaren eginkizun nagusia?",options:[{text:"Osagai guztiak konektatu eta haien arteko komunikazioa bermatzea",correct:true},{text:"Energia elektrikoa osagai guztiei banatzea",correct:false},{text:"Datuak prozesatzea CPUaren ordez",correct:false}],hint:"Plaka ama 'autopista' bat bezala da — osagai guztiak bertatik pasatzen dira komunikatzeko.",fact:"Plaka amaren tamaina estandarrak ATX, Micro-ATX eta Mini-ITX dira."},
+{id:5,component:"Elikadura-iturria (PSU)",emoji:"🔋",question:"Zer egiten du elikadura-iturriak?",options:[{text:"Korronte alternoa korronte zuzen bihurtzen du osagaiak elikatzeko",correct:true},{text:"Energia gordetzea bateria batean",correct:false},{text:"Ordenagailua internet sarera konektatzea",correct:false}],hint:"Entxufetik datorren korrontea (AC) ordenagailuak behar duen korronte mota (DC) bihurtzen du.",fact:"PSU baten efizientzia 80 Plus ziurtagiriarekin neurtzen da!"},
+{id:6,component:"Txartel Grafikoa (GPU)",emoji:"🎮",question:"Zein da GPUaren funtzio nagusia?",options:[{text:"Audioa prozesatzea bozgorailuentzat",correct:false},{text:"Sistema eragilea kargatzea",correct:false},{text:"Irudiak eta bideoak prozesatu eta bistaratzea",correct:true}],hint:"GPU = Graphics Processing Unit. Ikusizko guztia kudeatzen du: jokoak, bideoak, diseinua...",fact:"GPU modernoak AI ereduak entrenatzeko ere erabiltzen dira!"}
+];
+let screen="intro",ci=0,selOpt=null,isCorrect=null,showHint=false,showFact=false,score=0,attempts=0,completed=[];
+function render(){const app=document.getElementById("app");if(screen==="intro"){app.innerHTML=`<div class="intro"><div style="font-size:64px;margin-bottom:16px">🖥️</div><h1>Hardware Escape Room</h1><p>Ordenagailua ez da pizten! Osagai bakoitza egiaztatu behar duzu konpontzeko.<br>6 erronka gainditu eta ordenagailua martxan jarriko duzu.</p><div class="intro-grid">${challenges.map(c=>`<div class="intro-item"><div class="em">${c.emoji}</div><div class="nm">${c.component}</div></div>`).join("")}</div><button class="btn-start" onclick="screen='game';render()">HASI KONPONKETA →</button></div><p class="footer">Hardware Escape Room — Mikroinformatika-sistemak eta Sareak — Iker Zarraga Gaminde<br>Lizentzia: CC BY-SA 4.0</p>`;return}
+if(screen==="end"){app.innerHTML=`<div class="end"><div class="pulse" style="font-size:72px;margin-bottom:16px">🎉</div><h1>Ordenagailua martxan dago!</h1><p>Osagai guztiak egiaztatu dituzu eta ordenagailua piztuta dago.</p><div class="stats"><div><div class="stat-num" style="color:#22c55e">${score}/${challenges.length}</div><div class="stat-label">Zuzenak</div></div><div><div class="stat-num" style="color:#facc15">${attempts}</div><div class="stat-label">Saiakerak</div></div></div><div class="tags">${completed.map((p,i)=>`<span class="tag">${challenges[i].emoji} ${p}</span>`).join("")}</div></div><br><button class="btn-restart" onclick="restart()">Berriro hasi</button></div><p class="footer">Hardware Escape Room — Mikroinformatika-sistemak eta Sareak — Iker Zarraga Gaminde<br>Lizentzia: CC BY-SA 4.0</p>`;return}
+const ch=challenges[ci];let optsHtml=ch.options.map((o,i)=>{let cls="opt-btn",ccls="circle",lbl=String.fromCharCode(65+i);if(selOpt!==null){cls+=" disabled";if(o.correct){cls+=" correct";ccls+=" c-ok";lbl="✓"}else if(i===selOpt&&!o.correct){cls+=" wrong";ccls+=" c-err";lbl="✗"}}return`<button class="${cls}" onclick="answer(${i})" ${selOpt!==null?"disabled":""}><span class="${ccls}">${lbl}</span>${o.text}</button>`}).join("");
+let hintHtml="",factHtml="",actHtml="";
+if(showHint&&!isCorrect)hintHtml=`<div class="hint-box"><p class="ht">💡 Pista:</p><p>${ch.hint}</p></div>`;
+if(showFact&&isCorrect)factHtml=`<div class="fact-box"><p class="ft">✅ Zuzena! Bazekien?</p><p>${ch.fact}</p></div>`;
+if(isCorrect===false)actHtml=`<button class="btn-retry" onclick="retry()">Saiatu berriro</button>`;
+if(isCorrect===true)actHtml=`<button class="btn-next" onclick="next()">${ci<challenges.length-1?"Hurrengo osagaia →":"Amaitu! 🎉"}</button>`;
+let progHtml=challenges.map((_,i)=>{let c="prog-bar";if(i<ci||(i===ci&&isCorrect))c+=" done";else if(i===ci)c+=" current";return`<div class="${c}"></div>`}).join("");
+app.innerHTML=`<div class="header"><span>ERRONKA ${ci+1} / ${challenges.length}</span><span style="color:#22c55e">✓ ${score} zuzenduta</span></div><div class="progress">${progHtml}</div><div class="card" id="gamecard"><div class="badge"><span class="badge-emoji">${ch.emoji}</span><div><div class="badge-name">${ch.component}</div><div class="badge-sub">OSAGAIA EGIAZTATZEN...</div></div></div><p class="question">${ch.question}</p><div class="options">${optsHtml}</div>${hintHtml}${factHtml}<div class="actions">${actHtml}</div></div><p class="footer">Hardware Escape Room — Iker Zarraga Gaminde — CC BY-SA 4.0</p>`}
+function answer(i){if(selOpt!==null)return;selOpt=i;attempts++;const o=challenges[ci].options[i];if(o.correct){isCorrect=true;score++;showFact=true;completed.push(challenges[ci].component)}else{isCorrect=false;showHint=true;document.getElementById("gamecard")?.classList.add("shake");setTimeout(()=>document.getElementById("gamecard")?.classList.remove("shake"),500)}render()}
+function retry(){selOpt=null;isCorrect=null;showHint=false;render()}
+function next(){if(ci<challenges.length-1){ci++;selOpt=null;isCorrect=null;showHint=false;showFact=false;render()}else{screen="end";render()}}
+function restart(){screen="intro";ci=0;selOpt=null;isCorrect=null;showHint=false;showFact=false;score=0;attempts=0;completed=[];render()}
+render();
+</script>
+</body>
+</html>
